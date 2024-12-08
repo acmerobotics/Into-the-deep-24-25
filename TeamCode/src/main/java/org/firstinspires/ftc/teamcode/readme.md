@@ -1,131 +1,84 @@
-## TeamCode Module
+# SparkFun OTOS Quickstart for Roadrunner 1.0
 
-Welcome!
+The SparkFun OTOS or Optical Tracking Odometry Sensor is an optical-based odometry sensor with an integrated IMU.
+This repository allows teams to integrate it into Roadrunner as a drop-in replacement.
 
-This module, TeamCode, is the place where you will write/paste the code for your team's
-robot controller App. This module is currently empty (a clean slate) but the
-process for adding OpModes is straightforward.
+## Notes and Warnings
+Ensure that your sensor is properly mounted 10mm above the ground using the directions on the product page.
 
-## Creating your own OpModes
+The OTOS sensor is designed to ONLY work on official field tiles.
+Ensure that all tuning is performed on them.
+(If you have nothing else to test on, it seems to also be able to track a hardwood floor as well.
+However, tuning numbers will likely be different between them.)
 
-The easiest way to create your own OpMode is to copy a Sample OpMode and make it your own.
+The custom localization is implemented using the SparkFunOTOSDrive class, which *extends* MecanumDrive.
+This means that all of RoadRunner's standard tuning should remain in MecanumDrive, but you should use SparkFunOTOSDrive
+in your OpModes.
 
-Sample opmodes exist in the FtcRobotController module.
-To locate these samples, find the FtcRobotController module in the "Project/Android" tab.
+~~I eventually plan to PR this in some form once it's been more extensively tested.~~
+11/13/24 edit: I have opened PRs for the underlying library changes required for my integration, but they have not been merged; it seems like rbrott would prefer an official integration to rethink the tuning process entirely (which is reasonable but not something I personally have the time/knowledge for). See https://github.com/acmerobotics/road-runner-ftc/issues/8 and the linked PR's for further discussion.
 
-Expand the following tree elements:
- FtcRobotController/java/org.firstinspires.ftc.robotcontroller/external/samples
+## When things go wrong…
+This quickstart has not been extensively tested, and you are likely to encounter bugs and issues.
+If this happens, or if there's anything you're confused about or don't understand, the best way to get help is
+making a post in roadrunner-help on the FTC Discord with your MecanumDrive and SparkFunOTOSDrive attached and pinging me
+(@j5155).
+If you're certain that you've found a bug,
+or you have a feature request, you may also make an issue in the Issues tab above.
 
-### Naming of Samples
+Do NOT make an issue on the official Roadrunner quickstart while you are using this one.
 
-To gain a better understanding of how the samples are organized, and how to interpret the
-naming system, it will help to understand the conventions that were used during their creation.
+## Tuning
 
-These conventions are described (in detail) in the sample_conventions.md file in this folder.
+### Configure Hardware
 
-To summarize: A range of different samples classes will reside in the java/external/samples.
-The class names will follow a naming convention which indicates the purpose of each class.
-The prefix of the name will be one of the following:
+Configure your drive motors in MecanumDrive
+as explained [here](https://rr.brott.dev/docs/v1-0/tuning/#drive-classes).
+Make sure to properly reverse them using MecanumDirectionDebugger by following the official docs.
 
-Basic:  	This is a minimally functional OpMode used to illustrate the skeleton/structure
-            of a particular style of OpMode.  These are bare bones examples.
+Tuning currently also requires a properly configured Control Hub or Expansion Hub IMU in MecanumDrive.
+This will be fixed in the future, but for now make sure your hub orientation is properly defined.
 
-Sensor:    	This is a Sample OpMode that shows how to use a specific sensor.
-            It is not intended to drive a functioning robot, it is simply showing the minimal code
-            required to read and display the sensor values.
+Also, make sure to configure the OTOS in your hardware config.
+By default, SparkFunOTOSDrive will look for a sensor named sensor_otos,
+but you can change this in SparkFunOTOSDrive line 70.
 
-Robot:	    This is a Sample OpMode that assumes a simple two-motor (differential) drive base.
-            It may be used to provide a common baseline driving OpMode, or
-            to demonstrate how a particular sensor or concept can be used to navigate.
+Note that, to mitigate an issue with the OTOS driver in SDK version 9.2,
+you must currently configure the OTOS as "SparkFunOTOS Corrected" in your hardware config.
+### Tune Scalars and Offsets
+First, tune the Angular Scalar by running the OTOSAngularScalar OpMode and following the instructions.
+This will allow you to get the maximum accuracy from the OTOS IMU.
 
-Concept:	This is a sample OpMode that illustrates performing a specific function or concept.
-            These may be complex, but their operation should be explained clearly in the comments,
-            or the comments should reference an external doc, guide or tutorial.
-            Each OpMode should try to only demonstrate a single concept so they are easy to
-            locate based on their name.  These OpModes may not produce a drivable robot.
+After you have tuned the angular scalar, the IMU will be accurate enough to tune the heading offset.
+Run OTOSHeadingOffsetTuner and follow the instructions.
 
-After the prefix, other conventions will apply:
+Next, tune the Linear Scalar using the LocalizationTest OpMode.
+Again, ensure that you perform this tuning on field tiles so that the OTOS gives accurate data.
+SparkFun's official instructions to do are as follows:
+> To calibrate the linear scalar, move the
+robot a known distance and measure the error; do this multiple times at
+multiple speeds to get an average, then set the linear scalar to the
+inverse of the error.
+> For example, if you move the robot 100 inches and
+the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
 
-* Sensor class names are constructed as:    Sensor - Company - Type
-* Robot class names are constructed as:     Robot - Mode - Action - OpModetype
-* Concept class names are constructed as:   Concept - Topic - OpModetype
+Set the Linear Scalar at line 56 of SparkFunOTOSDrive.
 
-Once you are familiar with the range of samples available, you can choose one to be the
-basis for your own robot.  In all cases, the desired sample(s) needs to be copied into
-your TeamCode module to be used.
+Next, tune the Position Offset using OTOSPositionOffsetTuner by following the instructions.
+This should ensure that the OTOS is properly aware of its location on the robot.
 
-This is done inside Android Studio directly, using the following steps:
+As a final step to ensure everything is working properly,
+run LocalizationTest again and try driving around, spinning in place, etc.
+to make sure everything is working properly.
 
- 1) Locate the desired sample class in the Project/Android tree.
+### Begin Roadrunner Tuning
+Follow the [official RoadRunner docs](https://rr.brott.dev/docs/v1-0/tuning/#forwardramplogger-dead-wheels-only) for the remaining tuning steps.
+However, make sure to start at ForwardRampLogger and follow the steps labeled "dead wheels."
 
- 2) Right click on the sample class and select "Copy"
+Additionally, when you run AngularRampLogger,
+you can ignore the odometry position graphs and only use the trackWidthTicks one.
 
- 3) Expand the  TeamCode/java folder
-
- 4) Right click on the org.firstinspires.ftc.teamcode folder and select "Paste"
-
- 5) You will be prompted for a class name for the copy.
-    Choose something meaningful based on the purpose of this class.
-    Start with a capital letter, and remember that there may be more similar classes later.
-
-Once your copy has been created, you should prepare it for use on your robot.
-This is done by adjusting the OpMode's name, and enabling it to be displayed on the
-Driver Station's OpMode list.
-
-Each OpMode sample class begins with several lines of code like the ones shown below:
-
-```
- @TeleOp(name="Template: Linear OpMode", group="Linear Opmode")
- @Disabled
-```
-
-The name that will appear on the driver station's "opmode list" is defined by the code:
- ``name="Template: Linear OpMode"``
-You can change what appears between the quotes to better describe your opmode.
-The "group=" portion of the code can be used to help organize your list of OpModes.
-
-As shown, the current OpMode will NOT appear on the driver station's OpMode list because of the
-  ``@Disabled`` annotation which has been included.
-This line can simply be deleted , or commented out, to make the OpMode visible.
+Once you have completed the official docs for tuning, you should be good to go to use Roadrunner as normal!
 
 
 
-## ADVANCED Multi-Team App management:  Cloning the TeamCode Module
-
-In some situations, you have multiple teams in your club and you want them to all share
-a common code organization, with each being able to *see* the others code but each having
-their own team module with their own code that they maintain themselves.
-
-In this situation, you might wish to clone the TeamCode module, once for each of these teams.
-Each of the clones would then appear along side each other in the Android Studio module list,
-together with the FtcRobotController module (and the original TeamCode module).
-
-Selective Team phones can then be programmed by selecting the desired Module from the pulldown list
-prior to clicking to the green Run arrow.
-
-Warning:  This is not for the inexperienced Software developer.
-You will need to be comfortable with File manipulations and managing Android Studio Modules.
-These changes are performed OUTSIDE of Android Studios, so close Android Studios before you do this.
- 
-Also.. Make a full project backup before you start this :)
-
-To clone TeamCode, do the following:
-
-Note: Some names start with "Team" and others start with "team".  This is intentional.
-
-1)  Using your operating system file management tools, copy the whole "TeamCode"
-    folder to a sibling folder with a corresponding new name, eg: "Team0417".
-
-2)  In the new Team0417 folder, delete the TeamCode.iml file.
-
-3)  the new Team0417 folder, rename the "src/main/java/org/firstinspires/ftc/teamcode" folder
-    to a matching name with a lowercase 'team' eg:  "team0417".
-
-4)  In the new Team0417/src/main folder, edit the "AndroidManifest.xml" file, change the line that contains
-         package="org.firstinspires.ftc.teamcode"
-    to be
-         package="org.firstinspires.ftc.team0417"
-
-5)  Add:    include ':Team0417' to the "/settings.gradle" file.
-    
-6)  Open up Android Studios and clean out any old files by using the menu to "Build/Clean Project""
