@@ -28,9 +28,20 @@ public class opMode extends LinearOpMode {
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftExtender.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightExtender.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
         waitForStart();
 
         while (opModeIsActive()) {
+
            // Translation and rotation controls
             {
                 double x = gamepad1.left_stick_x;
@@ -41,8 +52,8 @@ public class opMode extends LinearOpMode {
                 rightBack.setPower(x + y - turn);
                 rightFront.setPower(-x + y - turn);
             }
-            // Extender controls
 
+            // Extender controls
             {
                 double powerDifferential =
                         (
@@ -85,16 +96,6 @@ public class opMode extends LinearOpMode {
                     gripperServo.setPosition(.25);
                 }
             }
-            // To reset all encoders on the bot
-            if (gamepad2.start){
-                leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                leftExtender.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                rightExtender.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            }
 
             telemetry.addData("leftFront Pos:", leftFront.getCurrentPosition());
             telemetry.addData("leftBack Pos:", leftBack.getCurrentPosition());
@@ -110,6 +111,7 @@ public class opMode extends LinearOpMode {
             telemetry.update();
         }
     }
+
     static double Clamp(double value){
         return Math.min(1,Math.max(-1, value));
     }
