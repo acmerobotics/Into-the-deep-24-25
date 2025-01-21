@@ -17,6 +17,7 @@ public class opMode extends LinearOpMode {
         DcMotor rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         DcMotor leftExtender = hardwareMap.get(DcMotor.class, "leftExtender");
         DcMotor rightExtender = hardwareMap.get(DcMotor.class, "rightExtender");
+        DcMotor lift = hardwareMap.get(DcMotor.class, "lift");
         Servo wristServo = hardwareMap.get(Servo.class, "wristServo");
         Servo gripperServo = hardwareMap.get(Servo.class, "gripperServo");
 
@@ -87,6 +88,7 @@ public class opMode extends LinearOpMode {
             telemetry.addData("rightFront  Pos:", rightFront.getCurrentPosition());
             telemetry.addData("leftExtender Pos", leftExtender.getCurrentPosition());
             telemetry.addData("rightExtender Pos", rightExtender.getCurrentPosition());
+            telemetry.addData("Lift Pos", lift.getCurrentPosition());
             telemetry.addData("Wrist Pos: ", wristServo.getPosition());
             telemetry.addData("Gripper Pos: ", gripperServo.getPosition());
             telemetry.addData("Left stick Y: ", gamepad2.left_stick_y);
