@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class opMode extends LinearOpMode {
     static final int LEFT_EXTENDER_ENDSTOP = 1695;
     static final int RIGHT_EXTENDER_ENDSTOP = 1695;
+    static final int LIFT_ENDSTOP = 2100;
 
     public void runOpMode() {
         DcMotor leftFront = hardwareMap.get(DcMotor.class, "leftFront");
@@ -24,6 +25,8 @@ public class opMode extends LinearOpMode {
         leftExtender.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
 
@@ -53,7 +56,17 @@ public class opMode extends LinearOpMode {
                 rightExtender.setPower(Clamp((-gamepad2.left_stick_y + direction * powerDifferential)));
             }
             // Lift controls
+            {
+                lift.setPower(0);
 
+                if (gamepad1.dpad_up && lift.getCurrentPosition() < LIFT_ENDSTOP) {
+                    lift.setPower(1);
+                }
+
+                if (gamepad1.dpad_down && lift.getCurrentPosition() > 0) {
+                    lift.setPower(-1);
+                }
+            }
             // To set the wrist servo A is down, B is forward
             {
                 if (gamepad2.a) {
@@ -80,6 +93,7 @@ public class opMode extends LinearOpMode {
                 rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 leftExtender.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 rightExtender.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
 
             telemetry.addData("leftFront Pos:", leftFront.getCurrentPosition());
