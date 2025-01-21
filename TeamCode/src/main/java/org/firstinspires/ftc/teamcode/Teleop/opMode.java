@@ -21,40 +21,21 @@ public class opMode extends LinearOpMode {
         Servo gripperServo = hardwareMap.get(Servo.class, "gripperServo");
 
         leftExtender.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
 
         while (opModeIsActive()) {
-            // Forward and Backward controls
+           // Translation and rotation controls
             {
-                leftFront.setPower(gamepad1.left_stick_y);
-                leftBack.setPower(gamepad1.left_stick_y);
-                rightBack.setPower(gamepad1.left_stick_y);
-                rightFront.setPower(gamepad1.left_stick_y);
-            }
-            // Left and Right rotation controls
-            {
-                leftFront.setPower(-gamepad1.right_stick_x);
-                leftBack.setPower(-gamepad1.right_stick_x);
-                rightBack.setPower(gamepad1.right_stick_x);
-                rightFront.setPower(gamepad1.right_stick_x);
-            }
-           // Strafing left and Strafing right
-            {
-                if (gamepad1.dpad_left) {
-                    leftFront.setPower(1);
-                    leftBack.setPower(-1);
-                    rightBack.setPower(1);
-                    rightFront.setPower(-1);
-                }
-                if (gamepad1.dpad_right) {
-                    leftFront.setPower(-1);
-                    leftBack.setPower(1);
-                    rightBack.setPower(-1);
-                    rightFront.setPower(1);
-                }
+                double x = gamepad1.left_stick_x;
+                double y = -gamepad1.left_stick_y; // Invert y to match coordinate system
+                double turn = gamepad1.right_stick_x;
+                leftFront.setPower(x + y + turn);
+                leftBack.setPower(-x + y + turn);
+                rightBack.setPower(x + y - turn);
+                rightFront.setPower(-x + y - turn);
             }
             // Extender controls
 
@@ -70,6 +51,8 @@ public class opMode extends LinearOpMode {
                 leftExtender.setPower(Clamp((-gamepad2.left_stick_y - direction * powerDifferential)));
                 rightExtender.setPower(Clamp((-gamepad2.left_stick_y + direction * powerDifferential)));
             }
+            // Lift controls
+
             // To set the wrist servo A is down, B is forward
             {
                 if (gamepad2.a) {
