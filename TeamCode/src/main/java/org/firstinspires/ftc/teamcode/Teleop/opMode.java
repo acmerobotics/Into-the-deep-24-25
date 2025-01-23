@@ -14,7 +14,7 @@ public class opMode extends LinearOpMode {
     static final double WRIST_DOWN_POSITION = 0.3;
     static final double GRIPPER_OPEN_POSITION = 0;
     static final double GRIPPER_CLOSED_POSITION = 0.25;
-
+    boolean gripperOpen = true;
     public void runOpMode() {
         DcMotor leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         DcMotor leftBack = hardwareMap.get(DcMotor.class, "leftBack");
@@ -101,12 +101,13 @@ public class opMode extends LinearOpMode {
             }
             // Gripper controls Y is open, X is close
             {
-                if (gamepad2.y){
-                    gripperServo.setPosition(GRIPPER_OPEN_POSITION);
-                }
-
-                if (gamepad2.x){
-                    gripperServo.setPosition(GRIPPER_CLOSED_POSITION);
+                if(gamepad1.right_bumper){
+                    gripperOpen = !gripperOpen;
+                    if (gripperOpen) {
+                        gripperServo.setPosition(GRIPPER_OPEN_POSITION);
+                    } else {
+                        gripperServo.setPosition(GRIPPER_CLOSED_POSITION);
+                    }
                 }
             }
 
