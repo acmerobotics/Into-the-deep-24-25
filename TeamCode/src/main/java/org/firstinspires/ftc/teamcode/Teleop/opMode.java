@@ -22,12 +22,11 @@ public class opMode extends LinearOpMode {
         Servo wristServo = hardwareMap.get(Servo.class, "wristServo");
         Servo gripperServo = hardwareMap.get(Servo.class, "gripperServo");
 
-        leftExtender.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightExtender.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -36,6 +35,14 @@ public class opMode extends LinearOpMode {
         leftExtender.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightExtender.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftExtender.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightExtender.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         waitForStart();
@@ -55,16 +62,17 @@ public class opMode extends LinearOpMode {
 
             // Extender controls
             {
-                double powerDifferential =
-                        (
-                                leftExtender.getCurrentPosition()/ LEFT_EXTENDER_ENDSTOP - rightExtender.getCurrentPosition()/ RIGHT_EXTENDER_ENDSTOP
-                        ) / 2 * 10;
+                leftExtender.setPower(0);
+                rightExtender.setPower(0);
 
-                //1 if going out, -1 if going in
-                int direction = gamepad2.left_stick_y > 0 ? 1 : -1;
-
-                leftExtender.setPower(Clamp((-gamepad2.left_stick_y - direction * powerDifferential)));
-                rightExtender.setPower(Clamp((-gamepad2.left_stick_y + direction * powerDifferential)));
+                if (gamepad1.y && leftExtender.getCurrentPosition() < LEFT_EXTENDER_ENDSTOP && rightExtender.getCurrentPosition() < RIGHT_EXTENDER_ENDSTOP) {
+                    leftExtender.setPower(1);
+                    rightExtender.setPower(1);
+                }
+                if (gamepad1.a && leftExtender.getCurrentPosition() > 0 && rightExtender.getCurrentPosition() > 0) {
+                    leftExtender.setPower(-1);
+                    rightExtender.setPower(-1);
+                }
             }
             // Lift controls
             {
@@ -110,10 +118,6 @@ public class opMode extends LinearOpMode {
             telemetry.addData("Right stick Y: ", gamepad2.right_stick_y);
             telemetry.update();
         }
-    }
-
-    static double Clamp(double value){
-        return Math.min(1,Math.max(-1, value));
     }
 }
 
