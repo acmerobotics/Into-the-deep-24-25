@@ -10,6 +10,10 @@ public class opMode extends LinearOpMode {
     static final int LEFT_EXTENDER_ENDSTOP = 1695;
     static final int RIGHT_EXTENDER_ENDSTOP = 1695;
     static final int LIFT_ENDSTOP = 2100;
+    static final double WRIST_UP_POSITION = 0;
+    static final double WRIST_DOWN_POSITION = 0.3;
+    static final double GRIPPER_OPEN_POSITION = 0;
+    static final double GRIPPER_CLOSED_POSITION = 0.25;
 
     public void runOpMode() {
         DcMotor leftFront = hardwareMap.get(DcMotor.class, "leftFront");
@@ -86,22 +90,23 @@ public class opMode extends LinearOpMode {
                     lift.setPower(-1);
                 }
             }
-            // To set the wrist servo A is down, B is forward
+            // To set the wrist servo B is down, X is up
             {
-                if (gamepad2.a) {
-                    wristServo.setPosition(0);
+                if (gamepad1.x) {
+                    wristServo.setPosition(WRIST_UP_POSITION);
                 }
-                if (gamepad2.b) {
-                    wristServo.setPosition(0.3);
+                if (gamepad1.b) {
+                    wristServo.setPosition(WRIST_DOWN_POSITION);
                 }
             }
             // Gripper controls Y is open, X is close
             {
                 if (gamepad2.y){
-                    gripperServo.setPosition(0);
+                    gripperServo.setPosition(GRIPPER_OPEN_POSITION);
                 }
+
                 if (gamepad2.x){
-                    gripperServo.setPosition(.25);
+                    gripperServo.setPosition(GRIPPER_CLOSED_POSITION);
                 }
             }
 
