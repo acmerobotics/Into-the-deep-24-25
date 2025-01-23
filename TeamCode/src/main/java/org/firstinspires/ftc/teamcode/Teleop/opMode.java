@@ -11,7 +11,7 @@ public class opMode extends LinearOpMode {
     static final int RIGHT_EXTENDER_ENDSTOP = 1695;
     static final int LIFT_ENDSTOP = 2100;
     static final double WRIST_UP_POSITION = 0;
-    static final double WRIST_DOWN_POSITION = 0.3;
+    static final double WRIST_DOWN_POSITION = 0.35;
     static final double GRIPPER_OPEN_POSITION = 0;
     static final double GRIPPER_CLOSED_POSITION = 0.25;
     boolean gripperOpen = true;
