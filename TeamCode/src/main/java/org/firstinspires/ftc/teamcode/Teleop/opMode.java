@@ -15,6 +15,9 @@ public class opMode extends LinearOpMode {
     static final double GRIPPER_OPEN_POSITION = 0;
     static final double GRIPPER_CLOSED_POSITION = 0.25;
     boolean gripperOpen = true;
+    static double SLOWMO_POWER_SCALE = .2;
+
+
     public void runOpMode() {
         DcMotor leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         DcMotor leftBack = hardwareMap.get(DcMotor.class, "leftBack");
@@ -48,21 +51,24 @@ public class opMode extends LinearOpMode {
         rightExtender.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
         waitForStart();
 
-        while (opModeIsActive()) {
 
-           // Translation and rotation controls
+
+        while (opModeIsActive()) {
+            double motorPowerScaling = gamepad1.left_bumper ? SLOWMO_POWER_SCALE : 1;
+
+            // Translation and rotation controls
             {
                 double x = gamepad1.left_stick_x;
                 double y = -gamepad1.left_stick_y; // Invert y to match coordinate system
                 double turn = gamepad1.right_stick_x;
-                leftFront.setPower(x + y + turn);
-                leftBack.setPower(-x + y + turn);
-                rightBack.setPower(x + y - turn);
-                rightFront.setPower(-x + y - turn);
+                leftFront.setPower((x + y + turn) * motorPowerScaling);
+                leftBack.setPower((-x + y + turn) * motorPowerScaling);
+                rightBack.setPower((x + y - turn) * motorPowerScaling);
+                rightFront.setPower((-x + y - turn) * motorPowerScaling);
             }
+            // Motor slowing button
 
             // Extender controls
             {
@@ -70,12 +76,12 @@ public class opMode extends LinearOpMode {
                 rightExtender.setPower(0);
 
                 if (gamepad1.y && leftExtender.getCurrentPosition() < LEFT_EXTENDER_ENDSTOP && rightExtender.getCurrentPosition() < RIGHT_EXTENDER_ENDSTOP) {
-                    leftExtender.setPower(1);
-                    rightExtender.setPower(1);
+                    leftExtender.setPower(motorPowerScaling);
+                    rightExtender.setPower(motorPowerScaling);
                 }
                 if (gamepad1.a && leftExtender.getCurrentPosition() > 0 && rightExtender.getCurrentPosition() > 0) {
-                    leftExtender.setPower(-1);
-                    rightExtender.setPower(-1);
+                    leftExtender.setPower(-motorPowerScaling);
+                    rightExtender.setPower(-motorPowerScaling);
                 }
             }
             // Lift controls
@@ -83,11 +89,11 @@ public class opMode extends LinearOpMode {
                 lift.setPower(0);
 
                 if (gamepad1.dpad_up && lift.getCurrentPosition() < LIFT_ENDSTOP) {
-                    lift.setPower(1);
+                    lift.setPower(motorPowerScaling);
                 }
 
                 if (gamepad1.dpad_down && lift.getCurrentPosition() > 0) {
-                    lift.setPower(-1);
+                    lift.setPower(-motorPowerScaling);
                 }
             }
             // To set the wrist servo B is down, X is up
